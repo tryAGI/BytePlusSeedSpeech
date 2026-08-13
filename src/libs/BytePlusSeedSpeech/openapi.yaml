@@ -1,0 +1,268 @@
+openapi: 3.0.3
+info:
+  title: BytePlus Seed Speech API
+  version: 1.0.0
+  description: >-
+    OpenAPI definition for the BytePlus Seed Speech Audio 1.0 HTTP API,
+    based on the official BytePlus Audio 1.0 API reference.
+servers:
+  - url: https://voice.ap-southeast-1.bytepluses.com/api/v3
+    description: BytePlus Seed Speech Singapore endpoint.
+security:
+  - ApiKeyAuth: []
+paths:
+  /tts/create:
+    post:
+      operationId: createAudio
+      tags:
+        - Audio Creation
+      summary: Generate audio with Seed Audio 1.0.
+      description: >-
+        Generates up to 120 seconds of audio from a natural-language prompt,
+        optionally conditioned on as many as three audio references or one image
+        reference. Reference audio can also be supplied by a TTS 2.0 or cloned
+        speaker ID.
+      parameters:
+        - name: X-Api-Request-Id
+          in: header
+          required: false
+          description: Client-generated request ID, typically a UUID.
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAudioRequest'
+      responses:
+        '200':
+          description: Audio generation result.
+          headers:
+            X-Tt-Logid:
+              description: BytePlus request log identifier.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateAudioResponse'
+        '400':
+          $ref: '#/components/responses/ErrorResponse'
+        '401':
+          $ref: '#/components/responses/ErrorResponse'
+        '429':
+          $ref: '#/components/responses/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/ErrorResponse'
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-Api-Key
+  responses:
+    ErrorResponse:
+      description: Seed Speech API error.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CreateAudioResponse'
+  schemas:
+    CreateAudioRequest:
+      type: object
+      required:
+        - model
+        - text_prompt
+      properties:
+        model:
+          type: string
+          description: Model version identifier. Use seed-audio-1.0.
+          example: seed-audio-1.0
+        text_prompt:
+          type: string
+          maxLength: 3000
+          description: >-
+            Natural-language audio prompt or text to synthesize. Use @Audio1,
+            @Audio2, and @Audio3 to address audio references in upload order.
+        references:
+          type: array
+          maxItems: 3
+          description: >-
+            Optional reference resources. Supply up to three audio references or
+            one image reference; image and audio references cannot be mixed.
+          items:
+            $ref: '#/components/schemas/AudioReference'
+        audio_config:
+          $ref: '#/components/schemas/AudioConfig'
+        watermark:
+          $ref: '#/components/schemas/WatermarkConfig'
+    AudioReference:
+      type: object
+      description: >-
+        A reference resource. For audio, provide exactly one of speaker,
+        audio_data, or audio_url. For an image, provide exactly one of image_data
+        or image_url. Image and audio fields cannot be mixed.
+      properties:
+        speaker:
+          type: string
+          description: TTS 2.0 or cloned voice speaker ID.
+        audio_data:
+          type: string
+          format: byte
+          description: >-
+            Base64-encoded wav, mp3, pcm, or ogg_opus reference audio. Each clip
+            can be up to 30 seconds and 10 MB.
+        audio_url:
+          type: string
+          format: uri
+          description: URL of a wav, mp3, pcm, or ogg_opus reference audio clip.
+        image_data:
+          type: string
+          format: byte
+          description: Base64-encoded jpeg, png, or webp reference image, up to 10 MB.
+        image_url:
+          type: string
+          format: uri
+          description: URL of a jpeg, png, or webp reference image.
+    AudioConfig:
+      type: object
+      description: Output audio configuration.
+      properties:
+        format:
+          $ref: '#/components/schemas/AudioFormat'
+        sample_rate:
+          type: integer
+          description: Output sample rate in hertz.
+          enum:
+            - 8000
+            - 16000
+            - 24000
+            - 32000
+            - 44100
+            - 48000
+        speech_rate:
+          type: integer
+          minimum: -50
+          maximum: 100
+          default: 0
+          description: Speech rate. 100 is 2x speed and -50 is 0.5x speed.
+        loudness_rate:
+          type: integer
+          minimum: -50
+          maximum: 100
+          default: 0
+          description: Volume adjustment. 100 is 2x and -50 is 0.5x volume.
+        pitch_rate:
+          type: integer
+          minimum: -12
+          maximum: 12
+          default: 0
+          description: Pitch adjustment.
+        enable_subtitle:
+          type: boolean
+          default: false
+          description: Include utterance- and word-level timestamps in the response.
+    AudioFormat:
+      type: string
+      description: Output audio encoding. Defaults to wav.
+      default: wav
+      enum:
+        - wav
+        - mp3
+        - pcm
+        - ogg_opus
+    WatermarkConfig:
+      type: object
+      description: Explicit and implicit audio watermark configuration.
+      properties:
+        aigc_watermark:
+          type: boolean
+          default: false
+          description: Add an audio rhythm marker at the end of the generated audio.
+        aigc_metadata:
+          $ref: '#/components/schemas/AigcMetadata'
+    AigcMetadata:
+      type: object
+      description: Metadata embedded in the synthesized audio header.
+      properties:
+        enable:
+          type: boolean
+          default: false
+        content_producer:
+          type: string
+          description: Name or code of the synthesis service provider.
+        produce_id:
+          type: string
+          description: Content production ID.
+        content_propagator:
+          type: string
+          description: Name or code of the content distribution service provider.
+        propagate_id:
+          type: string
+          description: Content distribution ID.
+    CreateAudioResponse:
+      type: object
+      additionalProperties: true
+      properties:
+        code:
+          type: integer
+          description: Provider status code, when returned.
+        message:
+          type: string
+          description: Provider status message, when returned.
+        audio:
+          type: string
+          format: byte
+          description: Base64-encoded synthesized audio.
+        duration:
+          type: number
+          format: double
+          description: Post-processed audio duration in seconds.
+        original_duration:
+          type: number
+          format: double
+          maximum: 120
+          description: Original model output duration in seconds, used for billing.
+        url:
+          type: string
+          format: uri
+          description: Generated audio URL, valid for two hours.
+        subtitle:
+          $ref: '#/components/schemas/Subtitle'
+    Subtitle:
+      type: object
+      properties:
+        text:
+          type: string
+          description: Full subtitle text.
+        sentences:
+          type: array
+          items:
+            $ref: '#/components/schemas/SubtitleSentence'
+    SubtitleSentence:
+      type: object
+      properties:
+        start_time:
+          type: integer
+          description: Utterance start time in milliseconds.
+        end_time:
+          type: integer
+          description: Utterance end time in milliseconds.
+        text:
+          type: string
+        words:
+          type: array
+          items:
+            $ref: '#/components/schemas/SubtitleWord'
+    SubtitleWord:
+      type: object
+      properties:
+        start_time:
+          type: integer
+          description: Word start time in milliseconds.
+        end_time:
+          type: integer
+          description: Word end time in milliseconds.
+        text:
+          type: string

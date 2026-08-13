@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup Label="Nuget">
+    <Description>C# SDK for BytePlus Seed Speech, including Seed Audio 1.0 generation.</Description>
+    <PackageTags>csharp;dotnet;sdk;ai;autosdk;openapi;byteplus;seed-speech;text-to-speech;audio-generation</PackageTags>
+  </PropertyGroup>
+
+</Project>

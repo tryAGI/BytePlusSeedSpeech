@@ -4,7 +4,7 @@
 namespace BytePlusSeedSpeech
 {
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public sealed partial class SubtitleWord
     {
@@ -21,7 +21,7 @@ namespace BytePlusSeedSpeech
         public int? EndTime { get; set; }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         [global::System.Text.Json.Serialization.JsonPropertyName("text")]
         public string? Text { get; set; }

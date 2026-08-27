@@ -4,7 +4,7 @@
 namespace BytePlusSeedSpeech
 {
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public sealed partial class CreateAudioResponse
     {
@@ -45,7 +45,7 @@ namespace BytePlusSeedSpeech
         public string? Url { get; set; }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         [global::System.Text.Json.Serialization.JsonPropertyName("subtitle")]
         public global::BytePlusSeedSpeech.Subtitle? Subtitle { get; set; }

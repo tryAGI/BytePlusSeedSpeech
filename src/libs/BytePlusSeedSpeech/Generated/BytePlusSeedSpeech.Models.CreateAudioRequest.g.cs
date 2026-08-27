@@ -4,7 +4,7 @@
 namespace BytePlusSeedSpeech
 {
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public sealed partial class CreateAudioRequest
     {

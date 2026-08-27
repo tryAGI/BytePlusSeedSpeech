@@ -20,7 +20,7 @@ namespace BytePlusSeedSpeech.JsonConverters
                     {
                         return global::BytePlusSeedSpeech.AudioFormatExtensions.ToEnum(stringValue) ?? default;
                     }
-                    
+
                     break;
                 }
                 case global::System.Text.Json.JsonTokenType.Number:

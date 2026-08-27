@@ -4,7 +4,7 @@
 namespace BytePlusSeedSpeech
 {
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public sealed partial class Subtitle
     {
@@ -15,7 +15,7 @@ namespace BytePlusSeedSpeech
         public string? Text { get; set; }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         [global::System.Text.Json.Serialization.JsonPropertyName("sentences")]
         public global::System.Collections.Generic.IList<global::BytePlusSeedSpeech.SubtitleSentence>? Sentences { get; set; }
